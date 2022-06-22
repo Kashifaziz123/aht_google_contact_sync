@@ -10,6 +10,7 @@
 
     """,
     'author': "Alhadi Tech",
+    'license': 'AGPL-3',
     'website': "https://www.alhaditech.com/",
     'category': 'Uncategorized',
     'version': '0.1',
