@@ -66,7 +66,7 @@ class GoogleContactsSync(models.TransientModel):
                 email = contact['emailAddresses'][0]['value'] if 'emailAddresses' in contact else 'N/A'
                 phone = contact['phoneNumbers'][0]['value'] if 'phoneNumbers' in contact else 'N/A'
                 mobile = ''
-                if len(contact['phoneNumbers'] > 1):
+                if len(contact['phoneNumbers']) > 1:
                     mobile = contact['phoneNumbers'][1]['value'] if 'phoneNumbers' in contact else 'N/A'
                 self.create({
                     'name': name,

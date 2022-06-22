@@ -9,7 +9,7 @@ class GoogleContactsApiAccess(http.Controller):
     @http.route('/response', auth='public')
     def get_response(self, **kwargs):
         try:
-            web_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            web_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
 
             aht_google_contact_credentials = request.env['ir.config_parameter'].sudo().search(
                 [('key', '=', 'aht_google_contact_credentials')]).value

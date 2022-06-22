@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "aht_google_contacts",
+    'name': "Google Contacts Sync",
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Google Contacts import and export. 
+        """,
     'description': """
-        Long description of module's purpose
+        This application facilitates users and managers to synchronize their Google account related contacts with Odoo. Users can import and export contacts between Google contacts and Odoo. Synchronization facilitates users to keep their Google contacts updated in their Odoo account.
+
+
     """,
-    'author': "My Company",
-    'website': "http://www.yourcompany.com",
+    'author': "Alhadi Tech",
+    'website': "https://www.alhaditech.com/",
     'category': 'Uncategorized',
     'version': '0.1',
     'depends': ['base', 'contacts'],
