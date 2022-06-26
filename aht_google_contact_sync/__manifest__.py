@@ -9,7 +9,7 @@
 
 
     """,
-    'author': "Alhadi Tech",
+    'author': "Alhaditech",
     'license': 'AGPL-3',
     'website': "https://www.alhaditech.com/",
     'category': 'Uncategorized',
