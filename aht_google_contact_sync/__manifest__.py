@@ -16,6 +16,7 @@
     'version': '0.1',
     'depends': ['base', 'contacts'],
     'price': 48, 'currency': 'USD',
+    'images': ['static/description/google-contacts-logo.jpg'],
     'data': [
         'security/ir.model.access.csv',
         'wizard/google_contacts.xml',
