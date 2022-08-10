@@ -15,7 +15,7 @@
     'category': 'Uncategorized',
     'version': '0.1',
     'depends': ['base', 'contacts'],
-    'price': 48, 'currency': 'USD',
+    'price': 52, 'currency': 'USD',
     'images': ['static/description/google-contacts-logo.jpg'],
     'data': [
         'security/ir.model.access.csv',
