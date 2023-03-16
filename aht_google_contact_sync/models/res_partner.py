@@ -54,29 +54,30 @@ class ResPartner(models.Model):
                 contactFound = 0
                 for person in connections:
                     if 'emailAddresses' in person:
-                        if person['phoneNumbers'][0]['value'] == phone:
-                            body = {
-                                'etag': person['etag'],
-                                "names": [
-                                    {
-                                        "givenName": contact.name
-                                    }
-                                ],
-                                "phoneNumbers": [],
-                                "emailAddresses": [
-                                    {
-                                        'value': contact.email
-                                    }
-                                ],
-                                "photos": [],
-                            }
-                            if contact.phone:
-                                body['phoneNumbers'].append({'value': contact.phone})
-                            if contact.mobile:
-                                body['phoneNumbers'].append({'value': contact.mobile})
-                            service.people().updateContact(resourceName=person['resourceName'],
-                                                           updatePersonFields='emailAddresses,phoneNumbers,names',
-                                                           body=body).execute()
+                        if person.get('phoneNumbers'):
+                            if person.get('phoneNumbers')[0].get('value') == phone:
+                                body = {
+                                    'etag': person['etag'],
+                                    "names": [
+                                        {
+                                            "givenName": contact.name
+                                        }
+                                    ],
+                                    "phoneNumbers": [],
+                                    "emailAddresses": [
+                                        {
+                                            'value': contact.email
+                                        }
+                                    ],
+                                    "photos": [],
+                                }
+                                if contact.phone:
+                                    body['phoneNumbers'].append({'value': contact.phone})
+                                if contact.mobile:
+                                    body['phoneNumbers'].append({'value': contact.mobile})
+                                service.people().updateContact(resourceName=person['resourceName'],
+                                                               updatePersonFields='emailAddresses,phoneNumbers,names',
+                                                               body=body).execute()
 
                 if contactFound == 0:
                     body = {
