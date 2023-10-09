@@ -6,8 +6,6 @@
         """,
     'description': """
         This application facilitates users and managers to synchronize their Google account related contacts with Odoo. Users can import and export contacts between Google contacts and Odoo. Synchronization facilitates users to keep their Google contacts updated in their Odoo account.
-
-
     """,
     'author': "Alhaditech",
     'license': 'AGPL-3',
@@ -15,7 +13,7 @@
     'category': 'Uncategorized',
     'version': '0.1',
     'depends': ['base', 'contacts'],
-    'price': 52, 'currency': 'USD',
+    'price': 65, 'currency': 'USD',
     'images': ['static/description/google-contacts-logo.jpg'],
     'data': [
         'security/ir.model.access.csv',
