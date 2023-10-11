@@ -6,9 +6,12 @@ from odoo import models, fields, exceptions, _
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from odoo.exceptions import UserError
+import logging
 import requests
 import base64
 import json
+
+_logger = logging.getLogger(__name__)
 
 
 class GoogleContactsSync(models.TransientModel):
@@ -24,14 +27,17 @@ class GoogleContactsSync(models.TransientModel):
 
     def sync_google_contacts(self, kwargs=None):
         SCOPES = ['https://www.googleapis.com/auth/contacts']
-        web_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        aht_google_contact_credentials = self.env['ir.config_parameter'].sudo().search([('key', '=', 'aht_google_contact_credentials')]).value
-        if not aht_google_contact_credentials or aht_google_contact_credentials == "":
-            raise exceptions.MissingError("Credentials Required.")
+        conf = self.env['ir.config_parameter'].sudo()
+        web_url = conf.get_param('web.base.url')
+        aht_google_contact_credentials = conf.get_param('aht_google_contact_credentials')
+        aht_google_contact_tokens = conf.get_param('aht_google_contact_tokens')
+        self.search([]).unlink()
         creds = None
 
-        aht_google_contact_tokens = self.env['ir.config_parameter'].sudo().get_param('aht_google_contact_tokens')
-        if aht_google_contact_tokens and aht_google_contact_tokens != '':
+        if aht_google_contact_credentials in [False, None, '']:
+            raise exceptions.MissingError("Credentials Required.")
+
+        if aht_google_contact_tokens not in [False, None, '']:
             json_creds = json.loads(aht_google_contact_tokens)
             creds = Credentials.from_authorized_user_info(json_creds, SCOPES)
         # If there are no (valid) credentials available, let the user log in.
@@ -48,70 +54,61 @@ class GoogleContactsSync(models.TransientModel):
                 }
         try:
             service = build('people', 'v1', credentials=creds)
-            results = service.people().connections().list(
-                resourceName='people/me',
-                pageSize=10,
-                personFields='names,emailAddresses,phoneNumbers,photos,locales,locations,coverPhotos').execute()
-            connections = results.get('connections', [])
-            contacts = []
-            for person in connections:
-                # names = person.get('names', [])
-                contacts.append(person)
-            records = self.env['google.contacts.sync'].search([])
-            for record in records:
-                record.unlink()
-            for contact in contacts:
-                object = contact
-                name = contact['names'][0]['displayName'] if 'names' in contact else 'N/A'
-                email = contact['emailAddresses'][0]['value'] if 'emailAddresses' in contact else 'N/A'
-                phone = contact['phoneNumbers'][0]['value'] if 'phoneNumbers' in contact else 'N/A'
-                mobile = ''
-                if len(contact['phoneNumbers']) > 1:
-                    mobile = contact['phoneNumbers'][1]['value'] if 'phoneNumbers' in contact else 'N/A'
-                self.create({
-                    'name': name,
-                    'email': email,
-                    'phone': phone,
-                    'mobile': mobile,
-                    'object': json.dumps(object),
-                })
+
+            people = service.people().connections()
+            people_list = people.list(resourceName='people/me', pageSize=25,
+                                      personFields='names,emailAddresses,phoneNumbers,photos,urls')
+            while people_list is not None:
+                results = people_list.execute()
+
+                connections = results.get('connections', [])
+                for contact in connections:
+                    name = contact['names'][0]['displayName'] if 'names' in contact else 'N/A'
+                    email = contact['emailAddresses'][0]['value'] if 'emailAddresses' in contact else 'N/A'
+                    phone = contact['phoneNumbers'][0]['value'] if 'phoneNumbers' in contact else 'N/A'
+                    mobile = 'N/A'
+                    if len(contact['phoneNumbers']) > 1:
+                        mobile = contact['phoneNumbers'][1]['value'] if 'phoneNumbers' in contact else 'N/A'
+                    self.create({
+                        'name': name,
+                        'email': email,
+                        'phone': phone,
+                        'mobile': mobile,
+                        'object': json.dumps(contact),
+                    })
+
+                people_list = people.list_next(people_list, results)
+
             return {
-                'name': "Your contacts",  # Name You want to display on wizard
+                'name': "Your contacts",
                 'view_mode': 'tree',
-                'view_id': self.env.ref('aht_google_contacts.view_contacts_tree').id,
-                'res_model': 'google.contacts.sync',  # With . Example sale.order
+                'view_id': self.env.ref('aht_google_contact_sync.view_contacts_tree').id,
+                'res_model': 'google.contacts.sync',
                 'type': 'ir.actions.act_window',
                 'target': 'new',
-                # 'tag': 'reload',
             }
-        except HttpError as err:
-            print(err)
+        except HttpError as e:
+            _logger.info("HttpError :: " + str(e.__dict__))
+        except Exception as e:
+            _logger.info("Exception :: " + str(e.__dict__))
 
     def import_contacts(self):
-        res = self.env['res.partner']
-        for rec in self:
-            contact = self.env['res.partner'].search([('phone', '=', rec.phone)])
-            if not contact.id:
-                contact.create({
+        try:
+            for rec in self:
+                contact = self.env['res.partner'].search([('phone', '=', rec.phone)])
+                google_response = json.loads(rec.object)
+                values = {
                     'company_type': 'person',
                     'name': rec.name,
                     'email': rec.email,
                     'phone': rec.phone,
-                    # 'image_1024': json.loads(rec.object)['photos'][0]['url'],
-                    'image_1920': base64.b64encode(requests.get(json.loads(rec.object)['photos'][0]['url']).content),
-                })
-            else:
-                contact.update({
-                    'company_type': 'person',
-                    'name': rec.name,
-                    'email': rec.email,
-                    'phone': rec.phone,
-                    'image_1920': base64.b64encode(requests.get(json.loads(rec.object)['photos'][0]['url']).content),
-                })
+                }
+                if google_response.get('photos') and len(google_response.get('photos')):
+                    values['image_1920'] = base64.b64encode(requests.get(google_response['photos'][0]['url']).content)
 
-    def call_url(self, link):
-        return {
-            'type': 'ir.actions.act_url',
-            'url': link,
-            'target': 'new',
-        }
+                if google_response.get('urls') and len(google_response.get('urls')):
+                    values['website'] = google_response['urls'][0]['value']
+
+                contact.update(values) if contact.id else contact.create(values)
+        except Exception as e:
+            raise exceptions.ValidationError(e.__dict__)
