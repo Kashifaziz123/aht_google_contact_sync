@@ -47,7 +47,7 @@ class ResPartner(models.Model):
             service = build('people', 'v1', credentials=creds)
 
             people = service.people().connections()
-            people_list = people.list(resourceName='people/me', pageSize=2,
+            people_list = people.list(resourceName='people/me', pageSize=25,
                                       personFields='phoneNumbers')
             google_contacts = []
             while people_list is not None:
