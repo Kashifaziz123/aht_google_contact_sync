@@ -78,7 +78,7 @@ class GoogleContactsSync(models.TransientModel):
             return {
                 'name': "Your contacts",  # Name You want to display on wizard
                 'view_mode': 'tree',
-                'view_id': self.env.ref('aht_google_contacts.view_contacts_tree').id,
+                'view_id': self.env.ref('aht_google_contact_sync.view_contacts_tree').id,
                 'res_model': 'google.contacts.sync',  # With . Example sale.order
                 'type': 'ir.actions.act_window',
                 'target': 'new',
