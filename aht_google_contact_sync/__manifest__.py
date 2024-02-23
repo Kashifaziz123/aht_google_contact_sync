@@ -15,6 +15,9 @@
     'depends': ['base', 'contacts'],
     'price': 65, 'currency': 'USD',
     'images': ['static/description/google-contacts-logo.jpg'],
+    'external_dependencies': {
+        'python': ['google_auth_oauthlib', 'google-auth']
+    },
     'data': [
         'security/ir.model.access.csv',
         'wizard/google_contacts.xml',
