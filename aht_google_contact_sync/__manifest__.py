@@ -14,7 +14,7 @@
     'version': '0.1',
     'depends': ['base', 'contacts'],
     'price': 65, 'currency': 'USD',
-    'images': ['static/description/google-contacts-logo.jpg'],
+    'images': ['static/description/cover.png'],
     'external_dependencies': {
         'python': ['google_auth_oauthlib', 'google-auth']
     },
