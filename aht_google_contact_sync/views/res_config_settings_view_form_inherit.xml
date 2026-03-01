@@ -6,15 +6,12 @@
         <field name="priority" eval="100"/>
         <field name="inherit_id" ref="base.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('settings')]" position="inside">
-                <div class="app_settings_block" data-string="GoogleContacts" string="Google Contacts" data-key="GoogleContacts">
-                    <h2>Google Contacts</h2>
-                    <div class="col-12 o_setting_box" >
-                        <group colspan="4">
-                            <field name="aht_google_contact_credentials"/>
-                        </group>
-                    </div>
-                </div>
+            <xpath expr="//form" position="inside">
+                <app data-string="Google Contacts" name="GoogleContacts" string="Google Contacts" groups="base.group_system">
+                    <setting string="Google Contacts Credentials">
+                        <field name="aht_google_contact_credentials"/>
+                    </setting>
+                </app>
             </xpath>
         </field>
     </record>

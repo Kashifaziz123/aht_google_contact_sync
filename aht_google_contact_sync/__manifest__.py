@@ -12,7 +12,7 @@
     'website': "https://www.alhaditech.com/",
     'category': 'Uncategorized',
     'version': '0.1',
-    'depends': ['base', 'contacts'],
+    'depends': ['base', 'contacts', 'base_setup'],
     'price': 65, 'currency': 'USD',
     'images': ['static/description/cover.png'],
     'external_dependencies': {

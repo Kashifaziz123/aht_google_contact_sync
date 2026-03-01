@@ -38,9 +38,11 @@ class ResPartner(models.Model):
                 flow = InstalledAppFlow.from_client_config(json.loads(aht_google_contact_credentials),
                                                            SCOPES, redirect_uri=web_url + '/response')
                 auth_url, _ = flow.authorization_url(prompt='consent')
+
                 return {
+                    "type": "ir.actions.act_url",
                     "url": auth_url,
-                    "type": "ir.actions.act_url"
+                    "target": "self"
                 }
 
         try:
@@ -72,8 +74,11 @@ class ResPartner(models.Model):
                 }
                 if record.website:
                     body['urls'] = [{'value': record.website}]
-                if record.mobile:
-                    body['phoneNumbers'].append({'value': record.mobile})
+
+                mobile = getattr(record, 'mobile', None)
+                if mobile:
+                    body['phoneNumbers'].append({'value': mobile})
+
                 if google_resource:
                     for google_contact in google_resource:
                         body['etag'] = google_contact['etag']
