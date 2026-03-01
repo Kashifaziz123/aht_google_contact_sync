@@ -67,7 +67,7 @@ class GoogleContactsSync(models.TransientModel):
                     email = contact['emailAddresses'][0]['value'] if 'emailAddresses' in contact else 'N/A'
                     phone = contact['phoneNumbers'][0]['value'] if 'phoneNumbers' in contact else 'N/A'
                     mobile = 'N/A'
-                    if len(contact['phoneNumbers']) > 1:
+                    if 'phoneNumbers' in contact and len(contact['phoneNumbers']) > 1:
                         mobile = contact['phoneNumbers'][1]['value'] if 'phoneNumbers' in contact else 'N/A'
                     self.create({
                         'name': name,
@@ -81,7 +81,7 @@ class GoogleContactsSync(models.TransientModel):
 
             return {
                 'name': "Your contacts",
-                'view_mode': 'tree',
+                'view_mode': 'list',
                 'view_id': self.env.ref('aht_google_contact_sync.view_contacts_tree').id,
                 'res_model': 'google.contacts.sync',
                 'type': 'ir.actions.act_window',
@@ -90,7 +90,8 @@ class GoogleContactsSync(models.TransientModel):
         except HttpError as e:
             _logger.info("HttpError :: " + str(e.__dict__))
         except Exception as e:
-            _logger.info("Exception :: " + str(e.__dict__))
+            _logger.info("Exception :: " + str(e))
+            raise
 
     def import_contacts(self):
         try:
